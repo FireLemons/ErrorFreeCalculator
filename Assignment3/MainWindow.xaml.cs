@@ -32,6 +32,13 @@ namespace Assignment3
             expressionCharGroups.Add(ExpressionComponent.ParenOpen, new ButtonGroup(new Button[] { btnParenLeft, btnSin, btnCos, btnTan, btnSqrt }));
 
             displayIn.DataContext = inputDisplay;
+            SetButtonStateButtons();
+        }
+
+        private void Delete(object sender, RoutedEventArgs e)
+        {
+            inputExpression.Delete(inputDisplay);
+            SetButtonStateButtons();
         }
 
         /// <summary>
@@ -76,6 +83,7 @@ namespace Assignment3
 
             foreach (ExpressionComponent c in legalState.Item1)
             {
+                Console.WriteLine("LEGAL:" + c);
                 ButtonGroup legalButtons = expressionCharGroups[c];
 
                 if (legalButtons.IsActive == false)
@@ -91,6 +99,7 @@ namespace Assignment3
 
             foreach (ExpressionComponent c in legalState.Item2)
             {
+                Console.WriteLine("ILLEGAL:" + c);
                 ButtonGroup illegalButtons = expressionCharGroups[c];
 
                 if(illegalButtons.IsActive == true)

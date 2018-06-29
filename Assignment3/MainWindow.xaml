@@ -124,7 +124,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Button Click="Clear" Grid.Column="0" Style="{StaticResource ClearButton}">Clear</Button>
-                <Button Grid.Column="1" Style="{StaticResource DeleteButton}">Delete</Button>
+                <Button Grid.Column="1" Style="{StaticResource DeleteButton}" Click="Delete">Delete</Button>
             </Grid>
         </StackPanel>
         <Grid Background="Black">

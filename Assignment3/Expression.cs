@@ -28,6 +28,16 @@ namespace Assignment3
         {
             expressionString.Append(appendStr);
             displayString.Display = expressionString.ToString();
+
+            switch (appendStr[appendStr.Length - 1])
+            {
+                case '(':
+                    parenOpenCount++;
+                    break;
+                case ')':
+                    parenOpenCount--;
+                    break;
+            }
         }
 
         /// <summary>
@@ -38,6 +48,50 @@ namespace Assignment3
         {
             expressionString.Clear();
             displayString.Display = "";
+        }
+
+        /// <summary>
+        ///     Removes the last expression component from the expresssion
+        /// </summary>
+        /// <param name="displayString">The string bound to the string displayed in the ui</param>
+        public void Delete(DisplayString displayString)
+        {
+            if (expressionString.Length != 0)
+            {
+                string expression = expressionString.ToString();
+                
+                switch (expression[expression.Length - 1])
+                {
+                    case ')':
+                        parenOpenCount++;
+                        break;
+                    case '(':
+                        parenOpenCount--;
+
+                        //check for sin, cos, tan, sqrt
+                        if (expression.Length > 2)
+                        {
+                            switch (expression[expression.Length - 2])
+                            {
+                                case 'n':
+                                case 's':
+                                    expressionString.Remove(expressionString.Length - 3, 3);
+                                    break;
+                                case 't':
+                                    expressionString.Remove(expressionString.Length - 4, 4);
+                                    break;
+                            }
+                        }
+                        break;
+                    case '\uDF0B':
+                        expressionString.Remove(expressionString.Length - 1, 1);
+                        break;
+                }
+                
+                expressionString.Remove(expressionString.Length - 1, 1);
+            }
+
+            displayString.Display = expressionString.ToString();
         }
 
         /// <summary>
@@ -162,13 +216,13 @@ namespace Assignment3
                             new ExpressionComponent[]
                             {
                                 ExpressionComponent.Constants,
-                                ExpressionComponent.Decimal,
                                 ExpressionComponent.Digits
                             }
                         ), new List<ExpressionComponent>(
                             new ExpressionComponent[]
                             {
-                                ExpressionComponent.Operators
+                                ExpressionComponent.Operators,
+                                ExpressionComponent.ParenClose
                             }
                         )
                     );
