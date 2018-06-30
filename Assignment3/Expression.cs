@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Assignment3
@@ -284,7 +285,7 @@ namespace Assignment3
         /// <summary>
         ///     Tries to solve the expression
         /// </summary>
-        public void Evaluate()
+        public double Evaluate()
         {
             //Detect erroneous expressions
             switch (expressionString[expressionString.Length - 1])
@@ -307,7 +308,7 @@ namespace Assignment3
                 throw new FormatException("ERROR: Unclosed parentheses pair");
             }
 
-            evaluate(0, expressionString.Length - 1);
+            return evaluate(0, expressionString.Length - 1);
         }
 
         /// <summary>
@@ -393,11 +394,11 @@ namespace Assignment3
         }
 
         /// <summary>
-        ///     
+        ///     Evaluates the Expression
         /// </summary>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        private void evaluate(int start, int end)
+        /// <param name="start">Index of first element of subexpression to be solved</param>
+        /// <param name="end">Index of last element of subexpression to be solved</param>
+        private double evaluate(int start, int end)
         {
             //scan evaluation string for evauation priority
             int[] priority = new int[end - start + 1];
@@ -407,8 +408,30 @@ namespace Assignment3
                 switch (expressionString[i])
                 {
                     case '+':
-                    case '-':
                         priority[i - start] = 5;
+                        break;
+                    case '-':
+                        //determine if negation or operator
+                        if (i != 0)
+                        {
+                            switch (expressionString[i - 1])
+                            {
+                                case '+':
+                                case '-':
+                                case '×':
+                                case '÷':
+                                case '^':
+                                    priority[i - start] = 1;
+                                    break;
+                                default:
+                                    priority[i - start] = 5;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            priority[i - start] = 1;
+                        }
                         break;
                     case '×':
                     case '÷':
@@ -419,6 +442,7 @@ namespace Assignment3
                         break;
                     case 'e':
                     case '\uDF0B':
+                    case '\uD835':
                         priority[i - start] = 2;
                         break;
                     case '.':
@@ -442,9 +466,13 @@ namespace Assignment3
                             priority[i - start] = 0;
                             i++;
                         }
+
+                        i--;
+
                         break;
                     case '(':
                         int parenOpenCount = 0;
+
                         do
                         {
                             priority[i - start] = 0;
@@ -457,7 +485,7 @@ namespace Assignment3
                             {
                                 parenOpenCount--;
                             }
-
+                            
                             i++;
                         } while (parenOpenCount > 0);
                         break;
@@ -472,17 +500,127 @@ namespace Assignment3
                     maxIdx = i;
                 }
             }
+
+            switch (priority[maxIdx])
+            {
+                case 5:
+                    return evaluateAddSubtract(start, end, start + maxIdx);
+                case 4:
+                    return evaluateMultiplyDivide(start, end, start + maxIdx);
+                case 3:
+                    return evaluateExponent(start, end, start + maxIdx);
+                case 2:
+                    return evaluateConstant(start, end);
+                case 1:
+                    return evaluateDouble(start, end);
+                case 0:
+                    return evaluateParenthesesFunctions(start, end);
+                default://Impossible
+                    return 0;
+            }
         }
 
         /// <summary>
-        /// 
+        ///     Handles add/subtract operations in the expression    
         /// </summary>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        /// <param name="operatorIdx"></param>
-        private void evaluateAddSubtract(int start, int end, int operatorIdx)
+        /// <param name="start">Index of first element of subexpression to be solved</param>
+        /// <param name="end">Index of last element of subexpression to be solved</param>
+        /// <param name="operatorIdx">Index of operator character</param>
+        private double evaluateAddSubtract(int start, int end, int operatorIdx)
         {
+            switch (expressionString[operatorIdx])
+            {
+                case '+':
+                    return evaluate(start, operatorIdx - 1) + evaluate(operatorIdx + 1, end);
+                case '-':
+                    return evaluate(start, operatorIdx - 1) - evaluate(operatorIdx + 1, end);
+                default:
+                    return 0;
+            }
+        }
 
+        /// <summary>
+        ///     Handles multiply/divide operations in the expression
+        /// </summary>
+        /// <param name="start">Index of first element of subexpression to be solved</param>
+        /// <param name="end">Index of last element of subexpression to be solved</param>
+        /// <param name="operatorIdx">Index of operator character</param>
+        private double evaluateMultiplyDivide(int start, int end, int operatorIdx)
+        {
+            switch (expressionString[operatorIdx])
+            {
+                case '×':
+                    return evaluate(start, operatorIdx - 1) * evaluate(operatorIdx + 1, end);
+                case '÷':
+                    return evaluate(start, operatorIdx - 1) / evaluate(operatorIdx + 1, end);
+                default:
+                    return 0;
+            }
+        }
+
+        /// <summary>
+        ///     Handles exponentiation operations in the expression
+        /// </summary>
+        /// <param name="start">Index of first element of subexpression to be solved</param>
+        /// <param name="end">Index of last element of subexpression to be solved</param>
+        /// <param name="operatorIdx">Index of operator character</param>
+        /// <returns></returns>
+        private double evaluateExponent(int start, int end, int operatorIdx)
+        {
+            return Math.Pow(evaluate(start, operatorIdx - 1), evaluate(operatorIdx + 1, end));
+        }
+
+        /// <summary>
+        ///     Handles parsing constants in the expression
+        /// </summary>
+        /// <param name="start">Index of first symbol of constant</param>
+        /// <param name="end">Index of first symbol of constant</param>
+        /// <returns></returns>
+        private double evaluateConstant(int start, int end)
+        {
+            switch (expressionString[end])
+            {
+                case 'e':
+                    return (expressionString[start] == '-') ? -1 * Math.E : Math.E;
+                case '\uDF0B':
+                    return (expressionString[start] == '-') ? -1 * Math.PI : Math.PI;
+                default:
+                    return 0;
+            }
+        }
+
+        /// <summary>
+        ///     Handles parsing of doubles
+        /// </summary>
+        /// <param name="start">Index of first symbol of double</param>
+        /// <param name="end">Index of last symbol of double</param>
+        /// <returns></returns>
+        private double evaluateDouble(int start, int end)
+        {
+            return Double.Parse(expressionString.ToString(start, end - start + 1), CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        ///     Handles parentheses evaluation and function evaluation
+        /// </summary>
+        /// <param name="start">Index of first element of subexpression to be solved</param>
+        /// <param name="end">Index of last element of subexpression to be solved</param>
+        /// <returns></returns>
+        private double evaluateParenthesesFunctions(int start, int end)
+        {
+            switch (expressionString[start])
+            {
+                case '(':
+                    return evaluate(start + 1, end - 1);
+                case 'c'://cos
+                    return Math.Cos(evaluate(start + 4, end - 1));
+                case 's'://sin and sqrt
+                    return (expressionString[start + 1] == 'i') ? Math.Sin(evaluate(start + 4, end - 1)) : Math.Sqrt(evaluate(start + 5, end - 1));
+                case 't'://tan
+                    return Math.Tan(evaluate(start + 4, end - 1));
+                default:
+                    return 0;
+            }
         }
     }
 }

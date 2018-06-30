@@ -13,7 +13,8 @@ namespace Assignment3
         private Dictionary<ExpressionComponent, ButtonGroup> expressionCharGroups;
         private Expression inputExpression;
         private DisplayString errorDisplay, 
-                              inputDisplay;
+                              inputDisplay,
+                              outputDisplay;
 
         public MainWindow()
         {
@@ -22,6 +23,7 @@ namespace Assignment3
             expressionCharGroups = new Dictionary<ExpressionComponent, ButtonGroup>();
             errorDisplay = new DisplayString();
             inputDisplay = new DisplayString();
+            outputDisplay = new DisplayString();
             inputExpression = new Expression(inputDisplay);
 
             //Create dictionary of sets of buttons
@@ -35,6 +37,7 @@ namespace Assignment3
 
             displayError.DataContext = errorDisplay;
             displayIn.DataContext = inputDisplay;
+            displayOut.DataContext = outputDisplay;
             SetButtonStateButtons();
         }
 
@@ -151,7 +154,7 @@ namespace Assignment3
         {
             try
             {
-                inputExpression.Evaluate();
+                outputDisplay.Display = inputExpression.Evaluate().ToString();
             }
             catch (Exception ex)
             {
