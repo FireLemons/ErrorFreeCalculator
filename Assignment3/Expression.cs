@@ -24,10 +24,9 @@ namespace Assignment3
         /// </summary>
         /// <param name="appendStr">The string to be appended to the expression string</param>
         /// <param name="displayString">The string bound to the string displayed in the ui</param>
-        public void AppendExpression(string appendStr, DisplayString displayString)
+        public string AppendExpression(string appendStr)
         {
             expressionString.Append(appendStr);
-            displayString.Display = expressionString.ToString();
 
             switch (appendStr[appendStr.Length - 1])
             {
@@ -38,6 +37,8 @@ namespace Assignment3
                     parenOpenCount--;
                     break;
             }
+
+            return expressionString.ToString();
         }
 
         /// <summary>
@@ -57,10 +58,8 @@ namespace Assignment3
         public void Delete(DisplayString displayString)
         {
             if (expressionString.Length != 0)
-            {
-                string expression = expressionString.ToString();
-                
-                switch (expression[expression.Length - 1])
+            {   
+                switch (expressionString[expressionString.Length - 1])
                 {
                     case ')':
                         parenOpenCount++;
@@ -68,22 +67,22 @@ namespace Assignment3
                     case '(':
                         parenOpenCount--;
 
-                        //check for sin, cos, tan, sqrt
-                        if (expression.Length > 2)
+                        //check for sin, cos, tan, sqrt and delete more characters is detected
+                        if (expressionString.Length > 2)
                         {
-                            switch (expression[expression.Length - 2])
+                            switch (expressionString[expressionString.Length - 2])
                             {
-                                case 'n':
-                                case 's':
+                                case 'n'://sin and tan
+                                case 's'://cos
                                     expressionString.Remove(expressionString.Length - 3, 3);
                                     break;
-                                case 't':
+                                case 't'://sqrt
                                     expressionString.Remove(expressionString.Length - 4, 4);
                                     break;
                             }
                         }
                         break;
-                    case '\uDF0B':
+                    case '\uDF0B'://pi Technically 2 characters in ascii
                         expressionString.Remove(expressionString.Length - 1, 1);
                         break;
                 }
@@ -104,11 +103,8 @@ namespace Assignment3
         /// </returns>
         public Tuple<List<ExpressionComponent>, List<ExpressionComponent>> GetActiveButtonState()
         {
-
-            string currentExpression = expressionString.ToString();
-            
             //if empty expression
-            if(currentExpression.Length == 0)
+            if(expressionString.Length == 0)
             {
                 return new Tuple<List<ExpressionComponent>, List<ExpressionComponent>>(
                     new List<ExpressionComponent>(
@@ -131,7 +127,7 @@ namespace Assignment3
             }
 
             //Non empty expression
-            switch (currentExpression[currentExpression.Length - 1])
+            switch (expressionString[expressionString.Length - 1])
             {
                 //constants
                 case 'e':
@@ -284,6 +280,35 @@ namespace Assignment3
                     return null;
             }
         }
+        
+        /// <summary>
+        ///     Tries to solve the expression
+        /// </summary>
+        public void Evaluate()
+        {
+            //Detect erroneous expressions
+            switch (expressionString[expressionString.Length - 1])
+            {
+                //expression ends in an operator
+                case '+':
+                case '-':
+                case '×':
+                case '÷':
+                case '^':
+                    throw new FormatException("ERROR: Expression ends with an operator");
+                //expression ends in a decimal point
+                case '.':
+                    throw new FormatException("ERROR: Expression ends in a decimal point");
+            }
+
+            //unclosed parentheses
+            if (parenOpenCount > 0)
+            {
+                throw new FormatException("ERROR: Unclosed parentheses pair");
+            }
+
+            evaluate(0, expressionString.Length - 1);
+        }
 
         /// <summary>
         ///     Figures out whether a decimal is legally appendable to the expression following a digit
@@ -365,6 +390,99 @@ namespace Assignment3
             {
                 legalLists.Item2.Add(ExpressionComponent.ParenClose);
             }
+        }
+
+        /// <summary>
+        ///     
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        private void evaluate(int start, int end)
+        {
+            //scan evaluation string for evauation priority
+            int[] priority = new int[end - start + 1];
+
+            for (int i = start; i <= end; i++)
+            {
+                switch (expressionString[i])
+                {
+                    case '+':
+                    case '-':
+                        priority[i - start] = 5;
+                        break;
+                    case '×':
+                    case '÷':
+                        priority[i - start] = 4;
+                        break;
+                    case '^':
+                        priority[i - start] = 3;
+                        break;
+                    case 'e':
+                    case '\uDF0B':
+                        priority[i - start] = 2;
+                        break;
+                    case '.':
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        priority[i - start] = 1;
+                        break;
+                    case 'c':
+                    case 's':
+                    case 't':
+                        while (Char.IsLetter(expressionString[i]))
+                        {
+                            priority[i - start] = 0;
+                            i++;
+                        }
+                        break;
+                    case '(':
+                        int parenOpenCount = 0;
+                        do
+                        {
+                            priority[i - start] = 0;
+                            if (expressionString[i] == '(')
+                            {
+                                parenOpenCount++;
+                            }
+
+                            if (expressionString[i] == ')')
+                            {
+                                parenOpenCount--;
+                            }
+
+                            i++;
+                        } while (parenOpenCount > 0);
+                        break;
+                }
+            }
+
+            int maxIdx = 0;
+            for(int i = 0; i < priority.Length; i++)
+            {
+                if(priority[i] > priority[maxIdx])
+                {
+                    maxIdx = i;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="operatorIdx"></param>
+        private void evaluateAddSubtract(int start, int end, int operatorIdx)
+        {
+
         }
     }
 }

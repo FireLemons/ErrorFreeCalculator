@@ -21,6 +21,9 @@ namespace Assignment3
             this.buttons = buttons;
         }
 
+        /// <summary>
+        ///     Is the set of buttons enabled in the UI
+        /// </summary>
         public bool IsActive
         {
             get
@@ -33,6 +36,9 @@ namespace Assignment3
             }
         } 
 
+        /// <summary>
+        ///     Related set of buttons
+        /// </summary>
         public Button[] Buttons
         {
             get

@@ -12,13 +12,15 @@ namespace Assignment3
     {
         private Dictionary<ExpressionComponent, ButtonGroup> expressionCharGroups;
         private Expression inputExpression;
-        private DisplayString inputDisplay;
+        private DisplayString errorDisplay, 
+                              inputDisplay;
 
         public MainWindow()
         {
             InitializeComponent();
 
             expressionCharGroups = new Dictionary<ExpressionComponent, ButtonGroup>();
+            errorDisplay = new DisplayString();
             inputDisplay = new DisplayString();
             inputExpression = new Expression(inputDisplay);
 
@@ -31,13 +33,20 @@ namespace Assignment3
             expressionCharGroups.Add(ExpressionComponent.ParenClose, new ButtonGroup(new Button[] { btnParenRight }));
             expressionCharGroups.Add(ExpressionComponent.ParenOpen, new ButtonGroup(new Button[] { btnParenLeft, btnSin, btnCos, btnTan, btnSqrt }));
 
+            displayError.DataContext = errorDisplay;
             displayIn.DataContext = inputDisplay;
             SetButtonStateButtons();
         }
 
+        /// <summary>
+        ///     Deletes the last symbol from the expression
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Delete(object sender, RoutedEventArgs e)
         {
             inputExpression.Delete(inputDisplay);
+            errorDisplay.Display = "";
             SetButtonStateButtons();
         }
 
@@ -49,27 +58,47 @@ namespace Assignment3
         private void Clear(object sender, RoutedEventArgs e)
         {
             inputExpression.Clear(inputDisplay);
+            errorDisplay.Display = "";
             SetButtonStateButtons();
         }
 
+        /// <summary>
+        ///     Appends a symbol to the input expression
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TypeChar(object sender, RoutedEventArgs e)
         {
             Button calcButton = (Button)sender;
-            inputExpression.AppendExpression(calcButton.Content.ToString(), inputDisplay);
+            inputDisplay.Display = inputExpression.AppendExpression(calcButton.Content.ToString());
+            errorDisplay.Display = "";
             SetButtonStateButtons();
         }
 
+        /// <summary>
+        ///     Appends a trig function to the input expression
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TypeFunction(object sender, RoutedEventArgs e)
         {
             Button calcButton = (Button)sender;
-            inputExpression.AppendExpression(calcButton.Content.ToString() + "(", inputDisplay);
+            inputDisplay.Display = inputExpression.AppendExpression(calcButton.Content.ToString() + "(");
+            errorDisplay.Display = "";
             SetButtonStateButtons();
         }
 
+        /// <summary>
+        ///     Appends the sqrt function to the input expression
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TypeSqrt(object sender, RoutedEventArgs e)
         {
             Button calcButton = (Button)sender;
-            inputExpression.AppendExpression("sqrt(", inputDisplay);
+            inputDisplay.Display = inputExpression.AppendExpression("sqrt(");
+            errorDisplay.Display = "";
+            
             SetButtonStateButtons();
         }
         
@@ -83,7 +112,6 @@ namespace Assignment3
 
             foreach (ExpressionComponent c in legalState.Item1)
             {
-                Console.WriteLine("LEGAL:" + c);
                 ButtonGroup legalButtons = expressionCharGroups[c];
 
                 if (legalButtons.IsActive == false)
@@ -99,7 +127,6 @@ namespace Assignment3
 
             foreach (ExpressionComponent c in legalState.Item2)
             {
-                Console.WriteLine("ILLEGAL:" + c);
                 ButtonGroup illegalButtons = expressionCharGroups[c];
 
                 if(illegalButtons.IsActive == true)
@@ -111,6 +138,24 @@ namespace Assignment3
 
                     illegalButtons.IsActive = false;
                 }
+            }
+        }
+
+        /// <summary>
+        ///     Tries to evaluate the expression
+        ///     Prints an error to the screen if it fails
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Evaluate(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                inputExpression.Evaluate();
+            }
+            catch (Exception ex)
+            {
+                errorDisplay.Display = ex.Message;
             }
         }
     }

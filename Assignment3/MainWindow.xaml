@@ -111,10 +111,10 @@
         <StackPanel DockPanel.Dock="Top" Margin="10">
             <TextBlock Name="displayIn" Style="{StaticResource Display}" Text="{Binding Display, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
             <TextBlock Name="displayOut" Style="{StaticResource Display}" Text="Output"></TextBlock>
-            <TextBlock Name="displayError" Style="{StaticResource DisplayError}" Text="Error"></TextBlock>
+            <TextBlock Name="displayError" Style="{StaticResource DisplayError}" Text="{Binding Display, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
         </StackPanel>
         <StackPanel Background="#01321f" DockPanel.Dock="Bottom">
-            <Button Style="{StaticResource SolveButton}">=</Button>
+            <Button Style="{StaticResource SolveButton}" Click="Evaluate">=</Button>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition/>

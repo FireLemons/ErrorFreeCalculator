@@ -2,6 +2,9 @@
 
 namespace Assignment3
 {
+    /// <summary>
+    ///     Class nessessary to bind strings to the display
+    /// </summary>
     class DisplayString : INotifyPropertyChanged
     {
         string displayString;
