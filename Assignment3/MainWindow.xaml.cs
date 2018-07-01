@@ -154,7 +154,14 @@ namespace Assignment3
         {
             try
             {
-                outputDisplay.Display = inputExpression.Evaluate().ToString();
+                double answer = inputExpression.Evaluate();
+
+                if (Double.IsInfinity(answer))
+                {
+                    throw new DivideByZeroException("ERROR: Divide by zero");
+                }
+
+                outputDisplay.Display = answer.ToString();
             }
             catch (Exception ex)
             {
