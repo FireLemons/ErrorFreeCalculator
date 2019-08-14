@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Assignment3"
         mc:Ignorable="d"
-        Title="Calculator by github.com/FireLemons" Height="621" Width="384">
+        Title="Errorless Calculator" Height="621" Width="384">
     <Window.Resources><!--Styling Rules-->
         <Style x:Key="Display" TargetType="TextBlock">
             <Setter Property="FontSize" Value="18pt"/>
