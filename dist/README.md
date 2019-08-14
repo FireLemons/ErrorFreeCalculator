@@ -1,0 +1,1 @@
+If the application prints an error about a missing .dll, try installing the appropriate Visual C++ Redistributable 2017
