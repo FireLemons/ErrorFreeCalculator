@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Assignment3
+namespace ErrorFreeCalculator
 {
     /// <summary>
     ///     Class nessessary to bind strings to the display

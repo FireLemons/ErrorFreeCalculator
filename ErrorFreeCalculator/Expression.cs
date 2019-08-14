@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace Assignment3
+namespace ErrorFreeCalculator
 {
     /// <summary>
     ///     A string representing a simple mathematical calculation to be evaluated

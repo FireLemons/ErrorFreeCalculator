@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Assignment3
+namespace ErrorFreeCalculator
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

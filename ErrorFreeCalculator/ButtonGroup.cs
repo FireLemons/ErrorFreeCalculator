@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace Assignment3
+namespace ErrorFreeCalculator
 {
     /// <summary>
     ///     Describes buttons related by what part of an expression they correspond to as well as whether they are active

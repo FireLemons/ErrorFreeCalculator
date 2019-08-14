@@ -1,4 +1,4 @@
-﻿namespace Assignment3
+﻿namespace ErrorFreeCalculator
 {
     enum ExpressionComponent
     {
