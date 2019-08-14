@@ -400,6 +400,8 @@ namespace ErrorFreeCalculator
         /// <param name="end">Index of last element of subexpression to be solved</param>
         private double evaluate(int start, int end)
         {
+            System.Console.WriteLine("evaluating: " + expressionString.ToString(start, end-start+1));
+            
             //scan evaluation string for evauation priority
             int[] priority = new int[end - start + 1];
 
@@ -487,10 +489,17 @@ namespace ErrorFreeCalculator
                             }
                             
                             i++;
+
+                            if (parenOpenCount == 0)
+                            {
+                                i--;
+                            }
                         } while (parenOpenCount > 0);
                         break;
                 }
             }
+
+            System.Console.Write("Priority: ");
 
             int maxIdx = 0;
             for(int i = 0; i < priority.Length; i++)
@@ -499,21 +508,30 @@ namespace ErrorFreeCalculator
                 {
                     maxIdx = i;
                 }
+
+                System.Console.Write(priority[i]);
             }
+            System.Console.WriteLine();
 
             switch (priority[maxIdx])
             {
                 case 5:
+                    System.Console.WriteLine("+-");
                     return evaluateAddSubtract(start, end, start + maxIdx);
                 case 4:
+                    System.Console.WriteLine("*/");
                     return evaluateMultiplyDivide(start, end, start + maxIdx);
                 case 3:
+                    System.Console.WriteLine("^");
                     return evaluateExponent(start, end, start + maxIdx);
                 case 2:
+                    System.Console.WriteLine("e");
                     return evaluateConstant(start, end);
                 case 1:
+                    System.Console.WriteLine("123: " + expressionString.ToString(start, end-start+1));
                     return evaluateDouble(start, end);
                 case 0:
+                    System.Console.WriteLine("()");
                     return evaluateParenthesesFunctions(start, end);
                 default://Impossible
                     return 0;
@@ -567,6 +585,9 @@ namespace ErrorFreeCalculator
         /// <returns></returns>
         private double evaluateExponent(int start, int end, int operatorIdx)
         {
+            System.Console.WriteLine("String: " + expressionString);
+            System.Console.WriteLine("Left: " + start + " to " + (operatorIdx - 1));
+            System.Console.WriteLine("Right: " + (operatorIdx + 1) + " to " +  end);
             return Math.Pow(evaluate(start, operatorIdx - 1), evaluate(operatorIdx + 1, end));
         }
 
